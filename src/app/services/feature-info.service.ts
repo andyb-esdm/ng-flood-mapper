@@ -22,7 +22,12 @@ export class FeatureInfoService {
     const pixel = event.pixel;
     let featureInfo: string | null = '';
     this.map?.forEachFeatureAtPixel(pixel, (feature, layer) => {
+      const notation = feature.get('notation');
       featureInfo += feature.get('notation');
+      const recordType = feature.get('recordType');
+      if (recordType === 'station') {
+        alert(notation)
+      }
     });
     if (featureInfo === '') {
       featureInfo = null;

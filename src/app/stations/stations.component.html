@@ -1,0 +1,21 @@
+<h2>Stations</h2>
+@if(stations.length > 0) {
+    <ul>
+        @for(station of stations; track station.id) {
+            <li>
+                <h3>{{ station.label }} @if(station.catchmentName) {
+                        ({{ station.catchmentName }})
+            }</h3>
+
+                <h4>Measures</h4>
+                <ul>
+                    @for(measure of station.measures; track measure) {
+                        <li> {{ measure.parameterName }} {{ measure.unitName }} </li>
+                    }
+                </ul>
+            </li>
+            }
+    </ul>
+    } @else {
+        <p>No stations on the map</p>
+    }

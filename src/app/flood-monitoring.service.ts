@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { forkJoin, map, Observable, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, forkJoin, map, Observable, switchMap, tap } from 'rxjs';
 import { Flood, FloodResponse } from './models/flood.model';
 import { FloodArea, FloodAreaResponse } from './models/flood-area.model';
 import { Coordinate } from 'ol/coordinate';
 import { Station, StationResponse } from './models/station.model';
+
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,9 @@ export class FloodMonitoringService {
 
   private httpClient = inject(HttpClient);
   private readonly apiBaseUrl = 'https://environment.data.gov.uk/flood-monitoring';
+
+  private stationsSubject = new BehaviorSubject<Station[]>([]);
+  readonly stations$ = this.stationsSubject.asObservable();
 
   constructor() { }
 
@@ -46,7 +50,7 @@ export class FloodMonitoringService {
     // fetch the list of floods
     return this.httpClient.get<FloodResponse>(floodsUrl).pipe(
       map(response => response.items),
-
+      map(floods => floods.map(flood => this.cleanItem(flood))),
       // for each flood, fetch the polygon data
       switchMap((floods: Flood[]) => {
         // array of requests for fetching polygon data
@@ -83,7 +87,7 @@ export class FloodMonitoringService {
     // fetch the list of flood areas
     return this.httpClient.get<FloodAreaResponse>(floodAreasUrl).pipe(
       map(response => response.items),
-
+      map(floodAreas => floodAreas.map(floodArea => this.cleanItem(floodArea))),
       // for each flood, fetch the polygon data
       switchMap((floodAreas: FloodArea[]) => {
         // array of requests for fetching polygon data
@@ -136,6 +140,9 @@ export class FloodMonitoringService {
     }
     return this.httpClient.get<StationResponse>(stationsUrl).pipe(
       map(response => response.items),
+      map(stations => stations.map(station => this.cleanItem(station))),
+      tap(stations => this.stationsSubject.next(stations))
     );
   }
+
 }

@@ -138,7 +138,10 @@ export class MapService {
         dataProjection: 'EPSG:4326',
         featureProjection: 'EPSG:3857'
       });
-      features.forEach(feature => feature.set('notation', floodArea.notation));
+      features.forEach(feature => {
+        feature.set('notation', floodArea.notation);
+        feature.set('recordType', 'floodArea');
+      });
       vectorSource.addFeatures(features);
     });
 
@@ -170,7 +173,10 @@ export class MapService {
         dataProjection: 'EPSG:4326',
         featureProjection: 'EPSG:3857'
       });
-      features.forEach(feature => feature.set('notation', flood.floodAreaID));
+      features.forEach(feature => {
+        feature.set('notation', flood.floodAreaID);
+        feature.set('recordType', 'flood');
+      });
       vectorSource.addFeatures(features);
     });
 
@@ -206,6 +212,8 @@ export class MapService {
       const mapCoordinates = transform(wgs84Coordinates, 'EPSG:4326', 'EPSG:3857');
 
       const feature = new Feature(new Point(mapCoordinates));
+      feature.set('notation', station.notation);
+      feature.set('recordType', 'station');
       vectorSource.addFeature(feature);
 
     });

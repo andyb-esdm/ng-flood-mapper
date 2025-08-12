@@ -9,6 +9,10 @@
 <app-map></app-map>
 <app-map-commands></app-map-commands>
 <app-feature-info></app-feature-info>
+@if (stations$ | async; as stations) {
+  <app-stations [stations]="stations"></app-stations>
+}
+
 
 <!-- <h2>Readings</h2>
 
