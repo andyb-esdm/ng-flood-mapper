@@ -2,10 +2,13 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Map as olMap, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
-import { FloodService } from '../flood.service';
+import { FloodMonitoringService } from '../flood-monitoring.service';
 import VectorSource from 'ol/source/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
 import VectorLayer from 'ol/layer/Vector';
+import Style from 'ol/style/Style';
+import Stroke from 'ol/style/Stroke';
+import { MapService } from '../services/map.service';
 
 @Component({
   selector: 'app-map',
@@ -15,7 +18,8 @@ import VectorLayer from 'ol/layer/Vector';
   styleUrl: './map.component.scss'
 })
 export class MapComponent implements OnInit {
-  private floodService = inject(FloodService);
+  private floodMonitoringService = inject(FloodMonitoringService);
+  private mapService = inject(MapService);
 
   protected county: string | null = null;
   protected description: string | null = null;
@@ -23,25 +27,17 @@ export class MapComponent implements OnInit {
 
   map: olMap | null = null;
   ngOnInit(): void {
-    this.map = new olMap({
-      target: 'map',
-      layers: [
-        new TileLayer({
-          source: new OSM(),
-        }),
-      ],
-      view: new View({
-        center: [0, 0],
-        zoom: 2,
-      }),
-    });
+    this.map = this.mapService.getMap();
+    this.map.setTarget('map');
 
-    this.floodService.getFloodArea().subscribe(floodArea => {
-      this.county = floodArea.county;
-      this.description = floodArea.description;
-      this.riverOrSea = floodArea.riverOrSea;
-      this.createFloodAreaLayer(floodArea.geoJson);
-    })
+    // this.mapService.addFloodsToMap();
+
+    // this.floodMonitoringService.getFloodArea().subscribe(floodArea => {
+    //   this.county = floodArea.county;
+    //   this.description = floodArea.description;
+    //   this.riverOrSea = floodArea.riverOrSea;
+    //   this.createFloodAreaLayer(floodArea.geoJson);
+    // })
   }
 
   private createFloodAreaLayer(geoJson: any) {
@@ -55,6 +51,21 @@ export class MapComponent implements OnInit {
     const vectorLayer = new VectorLayer({
       source: vectorSource,
     });
+
+    const feature = vectorSource.getFeatures()[0];
+    const simplifiedGeom = feature.getGeometry()?.simplify(30);
+
+    const clone = feature.clone();
+    clone.setGeometry(simplifiedGeom);
+    vectorSource.addFeature(clone);
+
+
+    const style = new Style({
+      stroke: new Stroke({
+        color: 'rgb(255,0,0)'
+      })
+    });
+    clone.setStyle(style)
 
     this.map?.addLayer(vectorLayer);
 

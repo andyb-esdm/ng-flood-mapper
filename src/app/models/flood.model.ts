@@ -1,12 +1,11 @@
 export interface Flood {
     id: string;
     message: string;
-    floodAreaId: string;
+    floodAreaID: string;
     floodArea: {
         polygon: string;
         geoJSON: string;
     };
-
 }
 
 export interface FloodResponse {

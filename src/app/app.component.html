@@ -1,13 +1,40 @@
+<div class="attribution">
+  <p>
+    This app uses Environment Agency flood and river level data from the
+    <a href="https://environment.data.gov.uk/flood-monitoring/doc/reference" target="_blank">real-time data API
+      (Beta)</a>
+  </p>
+</div>
+
 <app-map></app-map>
+<app-map-commands></app-map-commands>
+<app-feature-info></app-feature-info>
+
+<!-- <h2>Readings</h2>
 
 @if (readings$ | async; as readings) {
-  @for (item of readings.items; track item) {
-    {{ item | json }}
-    <hr />
+  <p>
+    <strong>
+      There are {{ readings.items.length}} readings.
+    </strong>
+  </p>
+  @if(readings.items.length > 0) {
+    @for (item of readings.items; track item) {
+      {{ item | json }}
+      <hr /> }
+  } @else {
+    <p>No readings</p>
   }
 }
+   -->
 
+<h2>Floods</h2>
 @if (floods$ | async; as floods) {
+  <p>
+    <strong>
+      There are {{ floods.items.length}} flood warnings today.
+    </strong>
+  </p>
   <pre>
   {{ floods | json }}
   </pre>
@@ -15,7 +42,9 @@
 
 @if (floodsWithPolygons$ | async; as floodsWithPolygons) {
   <p>
-    There are {{ floodsWithPolygons.length}} flood warnings today.
+    <strong>
+      There are {{ floodsWithPolygons.length}} flood warnings today.
+    </strong>
   </p>
   <!-- <pre>
   {{ floodsWithPolygons[0] | json }}

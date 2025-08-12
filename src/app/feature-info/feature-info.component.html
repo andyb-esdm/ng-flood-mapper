@@ -1,0 +1,6 @@
+<p>feature-info works!</p>
+@if(featureInfo$ | async; as featureInfo) {
+    <p>{{ featureInfo }}</p>
+} @else {
+    <p>Click on a flood area to view its info</p>
+}
