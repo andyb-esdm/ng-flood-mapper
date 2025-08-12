@@ -8,12 +8,12 @@ import VectorLayer from 'ol/layer/Vector';
 import { Flood } from '../models/flood.model';
 import VectorSource from 'ol/source/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
-import Style from 'ol/style/Style';
+import Style, { StyleLike } from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
 import Fill from 'ol/style/Fill';
 import { FloodArea } from '../models/flood-area.model';
 import olGeolocation from 'ol/Geolocation';
-import Feature from 'ol/Feature';
+import Feature, { FeatureLike } from 'ol/Feature';
 import CircleStyle from 'ol/style/Circle';
 import Point from 'ol/geom/Point';
 import { transform } from 'ol/proj';
@@ -175,6 +175,7 @@ export class MapService {
       });
       features.forEach(feature => {
         feature.set('notation', flood.floodAreaID);
+        feature.set('severityLevel', flood.severityLevel);
         feature.set('recordType', 'flood');
       });
       vectorSource.addFeatures(features);
@@ -182,20 +183,37 @@ export class MapService {
 
     this.floodLayer.setSource(vectorSource);
 
-    const style = new Style({
-      stroke: new Stroke({
-        color: 'rgb(255,0,0)'
-      }),
-      fill: new Fill({
-        color: 'rgba(255, 0, 0, 0.2)'
-      })
-    });
+    // const style = new Style({
+    //   stroke: new Stroke({
+    //     color: 'rgb(255,0,0)'
+    //   }),
+    //   fill: new Fill({
+    //     color: 'rgba(255, 0, 0, 0.2)'
+    //   })
+    // });
 
-    this.floodLayer.setStyle(style);
+    this.floodLayer.setStyle(this.floodStyle);
 
     this.map?.addLayer(this.floodLayer);
 
     this.map?.getView().fit(vectorSource.getExtent());
+  }
+
+  // 1	Severe Flood Warning	Severe Flooding, Danger to Life.
+  // 2	Flood Warning	Flooding is Expected, Immediate Action Required.
+  // 3	Flood Alert	Flooding is Possible, Be Prepared.
+  // 4	Warning no Longer in Force	The warning is no longer in force
+
+  private floodStyle = (feature: FeatureLike, resolution: number): Style => {
+    const defaultStyle = new Style({ stroke: new Stroke({ color: 'rgb(0,0,255)' }), fill: new Fill({ color: 'rgba(0, 0, 255, 0.2)' }) });
+    const styleMap = new Map<number, Style>([
+      [1, new Style({ stroke: new Stroke({ color: 'rgb(255,0,0)' }), fill: new Fill({ color: 'rgba(255, 0, 0, 0.2)' }) })],
+      [2, new Style({ stroke: new Stroke({ color: 'rgb(255,255,0)' }), fill: new Fill({ color: 'rgba(255, 255, 0, 0.2)' }) })],
+      [3, new Style({ stroke: new Stroke({ color: 'rgb(255,191,0)' }), fill: new Fill({ color: 'rgba(255, 191, 0, 0.2)' }) })],
+      [4, new Style({ stroke: new Stroke({ color: 'rgb(0,255,0)' }), fill: new Fill({ color: 'rgba(0, 255, 0, 0.2)' }) })]
+    ]);
+    const severityLevel = Number(feature.get('severityLevel'));
+    return styleMap.get(severityLevel) ?? defaultStyle;
   }
 
   addStationsToMap() {

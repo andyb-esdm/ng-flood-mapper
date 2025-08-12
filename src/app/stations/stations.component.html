@@ -3,9 +3,7 @@
     <ul>
         @for(station of stations; track station.id) {
             <li>
-                <h3>{{ station.label }} @if(station.catchmentName) {
-                        ({{ station.catchmentName }})
-            }</h3>
+                <h3>{{ station.label }} @if(station.catchmentName) { ({{ station.catchmentName }}) }</h3>
 
                 <h4>Measures</h4>
                 <ul>
