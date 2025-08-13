@@ -29,46 +29,5 @@ export class MapComponent implements OnInit {
   ngOnInit(): void {
     this.map = this.mapService.getMap();
     this.map.setTarget('map');
-
-    // this.mapService.addFloodsToMap();
-
-    // this.floodMonitoringService.getFloodArea().subscribe(floodArea => {
-    //   this.county = floodArea.county;
-    //   this.description = floodArea.description;
-    //   this.riverOrSea = floodArea.riverOrSea;
-    //   this.createFloodAreaLayer(floodArea.geoJson);
-    // })
-  }
-
-  private createFloodAreaLayer(geoJson: any) {
-    const vectorSource = new VectorSource({
-      features: new GeoJSON().readFeatures(geoJson, {
-        dataProjection: 'EPSG:4326',
-        featureProjection: 'EPSG:3857'
-      }),
-    });
-
-    const vectorLayer = new VectorLayer({
-      source: vectorSource,
-    });
-
-    const feature = vectorSource.getFeatures()[0];
-    const simplifiedGeom = feature.getGeometry()?.simplify(30);
-
-    const clone = feature.clone();
-    clone.setGeometry(simplifiedGeom);
-    vectorSource.addFeature(clone);
-
-
-    const style = new Style({
-      stroke: new Stroke({
-        color: 'rgb(255,0,0)'
-      })
-    });
-    clone.setStyle(style)
-
-    this.map?.addLayer(vectorLayer);
-
-    this.map?.getView().fit(vectorSource.getExtent());
   }
 }

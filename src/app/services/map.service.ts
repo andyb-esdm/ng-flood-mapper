@@ -30,6 +30,8 @@ export class MapService {
   private floodMonitoringService = inject(FloodMonitoringService);
 
   private floodLayer = new VectorLayer();
+  private floodAreasLayer = new VectorLayer();
+
   private floodAreaLayer = new VectorLayer();
   private stationLayer = new VectorLayer();
 
@@ -124,25 +126,27 @@ export class MapService {
 
   addFloodAreasToMap() {
     this.floodMonitoringService.getFloodAreasWithPolygons(this.coordinates, this.distanceQueryParam).subscribe(floodAreas => {
-      this.createFloodAreaLayer(floodAreas);
+      this.createFloodAreasLayer(floodAreas);
     })
   }
 
-  private createFloodAreaLayer(floodAreas: FloodArea[]) {
+  addFloodAreaToMap() {
+    this.floodMonitoringService.getFloodArea().subscribe(floodArea => {
+      this.createFloodAreaLayer(floodArea.geoJSON);
+    })
+  }
+
+  private createFloodAreaLayer(geoJSON: any) {
+    console.log(geoJSON)
     this.removeAllLayers();
 
     const formatter = new GeoJSON();
-    const vectorSource = new VectorSource();
-    floodAreas.forEach(floodArea => {
-      const features = formatter.readFeatures(floodArea.geoJSON, {
+
+    const vectorSource = new VectorSource({
+      features: new GeoJSON().readFeatures(geoJSON, {
         dataProjection: 'EPSG:4326',
         featureProjection: 'EPSG:3857'
-      });
-      features.forEach(feature => {
-        feature.set('notation', floodArea.notation);
-        feature.set('recordType', 'floodArea');
-      });
-      vectorSource.addFeatures(features);
+      }),
     });
 
     this.floodAreaLayer.setSource(vectorSource);
@@ -159,6 +163,41 @@ export class MapService {
     this.floodAreaLayer.setStyle(style);
 
     this.map?.addLayer(this.floodAreaLayer);
+
+    this.map?.getView().fit(vectorSource.getExtent());
+  }
+
+  private createFloodAreasLayer(floodAreas: FloodArea[]) {
+    this.removeAllLayers();
+
+    const formatter = new GeoJSON();
+    const vectorSource = new VectorSource();
+    floodAreas.forEach(floodArea => {
+      const features = formatter.readFeatures(floodArea.geoJSON, {
+        dataProjection: 'EPSG:4326',
+        featureProjection: 'EPSG:3857'
+      });
+      features.forEach(feature => {
+        feature.set('notation', floodArea.notation);
+        feature.set('recordType', 'floodArea');
+      });
+      vectorSource.addFeatures(features);
+    });
+
+    this.floodAreasLayer.setSource(vectorSource);
+
+    const style = new Style({
+      stroke: new Stroke({
+        color: 'rgb(0,0,255)'
+      }),
+      fill: new Fill({
+        color: 'rgba(0, 0, 255, 0.2)'
+      })
+    });
+
+    this.floodAreasLayer.setStyle(style);
+
+    this.map?.addLayer(this.floodAreasLayer);
 
     this.map?.getView().fit(vectorSource.getExtent());
   }
@@ -242,8 +281,9 @@ export class MapService {
 
   private removeAllLayers() {
     this.map?.removeLayer(this.floodLayer);
-    this.map?.removeLayer(this.floodAreaLayer);
+    this.map?.removeLayer(this.floodAreasLayer);
     this.map?.removeLayer(this.stationLayer);
+    this.map?.removeLayer(this.floodAreaLayer);
   }
 
 }

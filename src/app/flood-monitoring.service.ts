@@ -116,12 +116,12 @@ export class FloodMonitoringService {
       switchMap((floodArea) => {
         const polygonUrl = floodArea.items.polygon;
         return this.httpClient.get<any>(polygonUrl).pipe(
-          map(geoJson => {
+          map(geoJSON => {
             const response = {
               county: floodArea.items.county,
               description: floodArea.items.description,
               riverOrSea: floodArea.items.riverOrSea,
-              geoJson: geoJson
+              geoJSON: geoJSON
             };
             return response;
           }),

@@ -23,4 +23,8 @@ export class MapCommandsComponent {
     this.mapService.addStationsToMap();
   }
 
+  showFloodArea() {
+    this.mapService.addFloodAreaToMap();
+  }
+
 }
