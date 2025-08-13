@@ -1,11 +1,19 @@
 export interface FloodArea {
+    county: string;
+    description: string;
+    eaAreaName: string;
     notation: string;
+    riverOrSea: string;
     polygon: string;
     geoJSON: string;
 }
 
-export interface FloodAreaResponse {
+export interface FloodAreasResponse {
     items: FloodArea[]
+}
+
+export interface FloodAreaResponse {
+    items: FloodArea;
 }
 
 /*

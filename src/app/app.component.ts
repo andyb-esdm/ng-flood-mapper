@@ -21,6 +21,8 @@ export class AppComponent {
   floods$ = this.floodMonitoringService.getFloods();
   stations$ = this.floodMonitoringService.stations$;
 
+  floodArea$ = this.floodMonitoringService.getFloodArea();
+
   floodsWithPolygons$ = this.floodMonitoringService.getFloodsWithPolygons();
   title = 'ng-flood-mapper';
 }

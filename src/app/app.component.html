@@ -58,4 +58,11 @@
   </pre>
 }
 
+<h2>Flood Area</h2>
+@if (floodArea$ | async; as floodArea) {
+  <pre>
+  {{ floodArea | json }}
+  </pre>
+}
+
 <router-outlet />

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, map, Observable, switchMap, tap } from 'rxjs';
 import { Flood, FloodResponse } from './models/flood.model';
-import { FloodArea, FloodAreaResponse } from './models/flood-area.model';
+import { FloodArea, FloodAreaResponse, FloodAreasResponse } from './models/flood-area.model';
 import { Coordinate } from 'ol/coordinate';
 import { Station, StationResponse } from './models/station.model';
 
@@ -85,7 +85,7 @@ export class FloodMonitoringService {
     }
 
     // fetch the list of flood areas
-    return this.httpClient.get<FloodAreaResponse>(floodAreasUrl).pipe(
+    return this.httpClient.get<FloodAreasResponse>(floodAreasUrl).pipe(
       map(response => response.items),
       map(floodAreas => floodAreas.map(floodArea => this.cleanItem(floodArea))),
       // for each flood, fetch the polygon data
@@ -110,20 +110,22 @@ export class FloodMonitoringService {
     );
   }
 
-  getFloodArea(): Observable<any> {
+  getFloodArea(): Observable<FloodArea> {
     const floodAreaUrl = 'https://environment.data.gov.uk/flood-monitoring/id/floodAreas/122WAC953';
-    return this.httpClient.get<any>(floodAreaUrl).pipe(
-      switchMap((floodArea) => {
-        const polygonUrl = floodArea.items.polygon;
+    return this.httpClient.get<FloodAreaResponse>(floodAreaUrl).pipe(
+      switchMap((response) => {
+        const floodArea = response.items;
+        const polygonUrl = floodArea.polygon;
         return this.httpClient.get<any>(polygonUrl).pipe(
           map(geoJSON => {
-            const response = {
-              county: floodArea.items.county,
-              description: floodArea.items.description,
-              riverOrSea: floodArea.items.riverOrSea,
-              geoJSON: geoJSON
-            };
-            return response;
+            floodArea.geoJSON = geoJSON;
+            // const response = {
+            //   county: response.items.county,
+            //   description: response.items.description,
+            //   riverOrSea: response.items.riverOrSea,
+            //   geoJSON: geoJSON
+            // };
+            return floodArea;
           }),
 
         )
