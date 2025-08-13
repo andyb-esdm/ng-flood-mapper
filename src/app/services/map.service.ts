@@ -17,7 +17,6 @@ import Feature, { FeatureLike } from 'ol/Feature';
 import CircleStyle from 'ol/style/Circle';
 import Point from 'ol/geom/Point';
 import { transform } from 'ol/proj';
-import { BehaviorSubject, Subject } from 'rxjs';
 import { Coordinate } from 'ol/coordinate';
 import { Station } from '../models/station.model';
 
